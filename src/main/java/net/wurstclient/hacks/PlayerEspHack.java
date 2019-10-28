@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.wurstclient.FriendsList;
 import net.wurstclient.WurstClient;
 import net.wurstclient.util.ColorCode;
 import org.lwjgl.opengl.GL11;
@@ -179,8 +180,8 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 
 			GL11.glScaled(e.getWidth() + extraSize, e.getHeight() + extraSize,
 				e.getWidth() + extraSize);
-			
-			List<String> friends = WurstClient.INSTANCE.getFriendsList().getAllFriends();
+
+			FriendsList friends = WurstClient.INSTANCE.getFriends();
 			// Render color
 			if (color.getSelected() == Color.RANGE)
 			{
@@ -238,7 +239,7 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 					new Vec3d(e.x, e.y, e.z).subtract(e.prevX, e.prevY, e.prevZ)
 							.multiply(1 - partialTicks));
 
-			List<String> friends = WurstClient.INSTANCE.getFriendsList().getAllFriends();
+			FriendsList friends = WurstClient.INSTANCE.getFriends();
 			// Render color
 			if (color.getSelected() == Color.RANGE)
 			{

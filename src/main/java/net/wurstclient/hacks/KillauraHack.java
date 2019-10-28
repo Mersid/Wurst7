@@ -159,8 +159,7 @@ public final class KillauraHack extends Hack
 
 		if (filterFriends.isChecked())
 		{
-			List<String> friends = WurstClient.INSTANCE.getFriendsList().getAllFriends();
-			stream = stream.filter(e -> !friends.contains(e.getName().asString()));
+			stream = stream.filter(e -> !WurstClient.INSTANCE.getFriends().contains(e.getName().asString()));
 		}
 		if(filterSleeping.isChecked())
 			stream = stream.filter(e -> !(e instanceof PlayerEntity
