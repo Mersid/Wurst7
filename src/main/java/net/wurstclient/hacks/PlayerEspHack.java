@@ -388,32 +388,4 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 			return name;
 		}
 	}
-
-
-	private enum Color
-	{
-		RANGE("Range", true, false, false),
-		FIXED("Fixed", false, true, false),
-		TEAM("Team", false, false, true);
-
-		private final String name;
-		private final boolean range;
-		private final boolean fixed;
-		private final boolean team;
-
-
-		private Color(String name, boolean range, boolean fixed, boolean team)
-		{
-			this.name = name;
-			this.range = range;
-			this.fixed = fixed;
-			this.team = team;
-		}
-
-		@Override
-		public String toString()
-		{
-			return name;
-		}
-	}
 }
