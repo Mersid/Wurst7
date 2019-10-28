@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.TreeMap;
 
 import net.mersid.hacks.NoHurtcamHack;
+import net.mersid.hacks.AutoToolHack;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.crash.CrashReport;
 import net.wurstclient.WurstClient;
