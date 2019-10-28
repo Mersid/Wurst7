@@ -98,7 +98,6 @@ public enum WurstClient
 
 		Path friendsFile = wurstFolder.resolve("friends.json");
 		friends = new FriendsList(friendsFile);
-
 		cmdProcessor = new CmdProcessor(cmds);
 		eventManager.add(ChatOutputListener.class, cmdProcessor);
 

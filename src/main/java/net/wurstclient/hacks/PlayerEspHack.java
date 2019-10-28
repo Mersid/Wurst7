@@ -57,7 +57,6 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 					+ "Team note: As many servers do not utilize the scoreboard team system, colors are guessed\n"
 					+ "by the player's name tag color. This is not always accurate. Sorry!"
 			, Color.values(), Color.RANGE);
-
 	private final CheckboxSetting filterSleeping = new CheckboxSetting(
 			"Filter sleeping", "Won't show sleeping players.", false);
 
@@ -179,8 +178,8 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 					e.prevZ + (e.z - e.prevZ) * partialTicks);
 
 			GL11.glScaled(e.getWidth() + extraSize, e.getHeight() + extraSize,
-					e.getWidth() + extraSize);
-
+				e.getWidth() + extraSize);
+			
 			List<String> friends = WurstClient.INSTANCE.getFriendsList().getAllFriends();
 			// Render color
 			if (color.getSelected() == Color.RANGE)
@@ -218,7 +217,7 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 					GL11.glColor4f(colorCode.r, colorCode.g, colorCode.b, 0.5f);
 				}
 			}
-
+			
 			GL11.glCallList(playerBox);
 
 			GL11.glPopMatrix();
@@ -276,7 +275,7 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 					GL11.glColor4f(colorCode.r, colorCode.g, colorCode.b, 0.5f);
 				}
 			}
-
+			
 			GL11.glVertex3d(start.x, start.y, start.z);
 			GL11.glVertex3d(end.x, end.y, end.z);
 		}
@@ -316,7 +315,7 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 
 		return new ColorCode("d");
 	}
-
+	
 	private enum Style
 	{
 		BOXES("Boxes only", true, false),
@@ -353,6 +352,34 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 		{
 			this.name = name;
 			this.extraSize = extraSize;
+		}
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+	}
+
+
+	private enum Color
+	{
+		RANGE("Range", true, false, false),
+		FIXED("Fixed", false, true, false),
+		TEAM("Team", false, false, true);
+
+		private final String name;
+		private final boolean range;
+		private final boolean fixed;
+		private final boolean team;
+
+
+		private Color(String name, boolean range, boolean fixed, boolean team)
+		{
+			this.name = name;
+			this.range = range;
+			this.fixed = fixed;
+			this.team = team;
 		}
 
 		@Override
