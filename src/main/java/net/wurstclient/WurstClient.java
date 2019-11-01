@@ -12,7 +12,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import net.mersid.io.Mouse;
+import org.lwjgl.glfw.GLFW;
+
+import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
+import net.fabricmc.fabric.api.client.keybinding.KeyBindingRegistry;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import net.wurstclient.analytics.WurstAnalytics;
 import net.wurstclient.clickgui.ClickGui;
 import net.wurstclient.command.CmdList;
@@ -63,6 +69,8 @@ public enum WurstClient
 	private static boolean guiInitialized;
 	private WurstUpdater updater;
 	private Path wurstFolder;
+	
+	private FabricKeyBinding zoomKey;
 	
 	public void initialize()
 	{
@@ -118,6 +126,11 @@ public enum WurstClient
 		
 		updater = new WurstUpdater();
 		eventManager.add(UpdateListener.class, updater);
+		
+		zoomKey =
+			FabricKeyBinding.Builder.create(new Identifier("wurst", "zoom"),
+				InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_V, "Zoom").build();
+		KeyBindingRegistry.INSTANCE.register(zoomKey);
 		
 		analytics.trackPageView("/mc" + MC_VERSION + "/v" + VERSION,
 			"Wurst " + VERSION + " MC" + MC_VERSION);
@@ -230,5 +243,10 @@ public enum WurstClient
 	public Path getWurstFolder()
 	{
 		return wurstFolder;
+	}
+	
+	public FabricKeyBinding getZoomKey()
+	{
+		return zoomKey;
 	}
 }
