@@ -63,8 +63,8 @@ public class TrajectoriesHack extends Hack implements RenderListener {
 
 		for (Entity e : MC.world.getEntities())
 		{
-			if (!(e instanceof LivingEntity)) continue;
-			LivingEntity entity = (LivingEntity)e;
+			if (!(e instanceof PlayerEntity)) continue;
+			PlayerEntity entity = (PlayerEntity)e;
 
 			TrajectoryPath path = getPath(entity);
 
