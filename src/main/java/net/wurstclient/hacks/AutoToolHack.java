@@ -24,7 +24,8 @@ import net.wurstclient.settings.CheckboxSetting;
 import net.wurstclient.util.BlockUtils;
 
 @SearchTags({"auto tool", "AutoSwitch", "auto switch"})
-public final class AutoToolHack extends Hack
+public final class
+AutoToolHack extends Hack
 	implements BlockBreakingProgressListener, UpdateListener
 {
 	private final CheckboxSetting useSwords = new CheckboxSetting("Use swords",

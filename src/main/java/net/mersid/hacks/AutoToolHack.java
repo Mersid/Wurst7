@@ -78,8 +78,7 @@ public class AutoToolHack extends Hack implements BlockBreakingProgressListener,
 		if (isBreakingBlock && (lastBlockPos == null || lastBlockPos == event.getBlockPos())) return; // 1.14.4 refactor - This method is called every tick
 		PlayerEntity player = MC.player;
 		Item mainHandItem = player.getMainHandStack().getItem();
-		
-		System.out.println(mainHandItem);
+
 		if (ignoreOnSwordEquipped.isChecked() && mainHandItem instanceof SwordItem) return;
 		if (ignoreOnAxeEquipped.isChecked() && mainHandItem instanceof AxeItem) return;
 		
