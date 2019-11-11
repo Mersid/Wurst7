@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import net.minecraft.entity.mob.GuardianEntity;
+import net.minecraft.entity.mob.ZombieEntity;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
