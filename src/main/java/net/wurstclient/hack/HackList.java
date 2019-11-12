@@ -41,7 +41,7 @@ public final class HackList implements UpdateListener
 	public final AutoFishHack autoFishHack = new AutoFishHack();
 	public final AutoMineHack autoMineHack = new AutoMineHack();
 	public final AutoRespawnHack autoRespawnHack = new AutoRespawnHack();
-	// public final AutoSignHack autoSignHack = new AutoSignHack();
+	public final AutoSignHack autoSignHack = new AutoSignHack();
 	// public final AutoSplashPotHack autoSplashPotHack = new
 	// AutoSplashPotHack();
 	// public final AutoSoupHack autoSoupHack = new AutoSoupHack();
@@ -138,7 +138,7 @@ public final class HackList implements UpdateListener
 	// public final RegenHack regenHack = new RegenHack();
 	// public final RemoteViewHack remoteViewHack = new RemoteViewHack();
 	// public final SafeWalkHack safeWalkHack = new SafeWalkHack();
-	// public final ScaffoldWalkHack scaffoldWalkHack = new ScaffoldWalkHack();
+	public final ScaffoldWalkHack scaffoldWalkHack = new ScaffoldWalkHack();
 	public final SearchHack searchHack = new SearchHack();
 	// public final SkinDerpHack skinDerpHack = new SkinDerpHack();
 	public final SneakHack sneakHack = new SneakHack();
@@ -149,7 +149,7 @@ public final class HackList implements UpdateListener
 	// public final StepHack stepHack = new StepHack();
 	// public final TemplateToolHack templateToolHack = new TemplateToolHack();
 	// public final ThrowHack throwHack = new ThrowHack();
-	// public final TimerHack timerHack = new TimerHack();
+	public final TimerHack timerHack = new TimerHack();
 	// public final TiredHack tiredHack = new TiredHack();
 	// public final TpAuraHack tpAuraHack = new TpAuraHack();
 	public final TrajectoriesHack trajectoriesHack = new TrajectoriesHack();
