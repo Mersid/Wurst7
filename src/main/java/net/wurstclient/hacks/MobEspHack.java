@@ -16,7 +16,6 @@ import net.minecraft.entity.mob.GuardianEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -151,9 +150,9 @@ public final class MobEspHack extends Hack implements UpdateListener,
 		{
 			GL11.glPushMatrix();
 			
-			GL11.glTranslated(e.prevX + (e.x - e.prevX) * partialTicks,
-				e.prevY + (e.y - e.prevY) * partialTicks,
-				e.prevZ + (e.z - e.prevZ) * partialTicks);
+			GL11.glTranslated(e.prevX + (e.getX() - e.prevX) * partialTicks,
+				e.prevY + (e.getY() - e.prevY) * partialTicks,
+				e.prevZ + (e.getZ() - e.prevZ) * partialTicks);
 			
 			GL11.glScaled(e.getWidth() + extraSize, e.getHeight() + extraSize,
 				e.getWidth() + extraSize);
@@ -177,16 +176,15 @@ public final class MobEspHack extends Hack implements UpdateListener,
 	
 	private void renderTracers(double partialTicks)
 	{
-		Vec3d start = RotationUtils.getClientLookVec().add(
-			BlockEntityRenderDispatcher.renderOffsetX,
-			BlockEntityRenderDispatcher.renderOffsetY,
-			BlockEntityRenderDispatcher.renderOffsetZ);
+		Vec3d start =
+			RotationUtils.getClientLookVec().add(RenderUtils.getCameraPos());
 		
 		GL11.glBegin(GL11.GL_LINES);
 		for(MobEntity e : mobs)
 		{
-			Vec3d end = e.getBoundingBox().getCenter().subtract(
-				new Vec3d(e.x, e.y, e.z).subtract(e.prevX, e.prevY, e.prevZ)
+			Vec3d end = e.getBoundingBox().getCenter()
+				.subtract(new Vec3d(e.getX(), e.getY(), e.getZ())
+					.subtract(e.prevX, e.prevY, e.prevZ)
 					.multiply(1 - partialTicks));
 
 			if (color.getSelected().equals(Color.RANGE))

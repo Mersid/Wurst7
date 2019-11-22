@@ -20,7 +20,6 @@ import net.wurstclient.util.ColorCode;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Box;
@@ -113,11 +112,11 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 
 		players.clear();
 		Stream<AbstractClientPlayerEntity> stream = world.getPlayers()
-				.parallelStream().filter(e -> !e.removed && e.getHealth() > 0)
-				.filter(e -> e != player)
-				.filter(e -> !(e instanceof FakePlayerEntity))
-				.filter(e -> Math.abs(e.y - MC.player.y) <= 1e6);
-
+			.parallelStream().filter(e -> !e.removed && e.getHealth() > 0)
+			.filter(e -> e != player)
+			.filter(e -> !(e instanceof FakePlayerEntity))
+			.filter(e -> Math.abs(e.getY() - MC.player.getY()) <= 1e6);
+		
 		if(filterSleeping.isChecked())
 			stream = stream.filter(e -> !e.isSleeping());
 
@@ -173,11 +172,11 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 		for(PlayerEntity e : players)
 		{
 			GL11.glPushMatrix();
-
-			GL11.glTranslated(e.prevX + (e.x - e.prevX) * partialTicks,
-					e.prevY + (e.y - e.prevY) * partialTicks,
-					e.prevZ + (e.z - e.prevZ) * partialTicks);
-
+			
+			GL11.glTranslated(e.prevX + (e.getX() - e.prevX) * partialTicks,
+				e.prevY + (e.getY() - e.prevY) * partialTicks,
+				e.prevZ + (e.getZ() - e.prevZ) * partialTicks);
+			
 			GL11.glScaled(e.getWidth() + extraSize, e.getHeight() + extraSize,
 				e.getWidth() + extraSize);
 
@@ -227,21 +226,20 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 
 	private void renderTracers(double partialTicks)
 	{
-		Vec3d start = RotationUtils.getClientLookVec().add(
-				BlockEntityRenderDispatcher.renderOffsetX,
-				BlockEntityRenderDispatcher.renderOffsetY,
-				BlockEntityRenderDispatcher.renderOffsetZ);
-
+		Vec3d start =
+			RotationUtils.getClientLookVec().add(RenderUtils.getCameraPos());
+		
 		GL11.glBegin(GL11.GL_LINES);
 		for(PlayerEntity e : players)
 		{
-			Vec3d end = e.getBoundingBox().getCenter().subtract(
-					new Vec3d(e.x, e.y, e.z).subtract(e.prevX, e.prevY, e.prevZ)
-							.multiply(1 - partialTicks));
-
-			FriendsList friends = WurstClient.INSTANCE.getFriends();
-			// Render color
-			if (color.getSelected() == Color.RANGE)
+			Vec3d end = e.getBoundingBox().getCenter()
+				.subtract(new Vec3d(e.getX(), e.getY(), e.getZ())
+					.subtract(e.prevX, e.prevY, e.prevZ)
+					.multiply(1 - partialTicks));
+			
+			if(WURST.getFriends().contains(e.getEntityName()))
+				GL11.glColor4f(0, 0, 1, 0.5F);
+			else
 			{
 				float f = MC.player.distanceTo(e) / 20F;
 				GL11.glColor4f(2 - f, f, 0, 0.5F);

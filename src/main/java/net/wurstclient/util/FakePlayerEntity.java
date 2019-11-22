@@ -49,14 +49,14 @@ public class FakePlayerEntity extends OtherClientPlayerEntity
 	private void copyRotation()
 	{
 		headYaw = player.headYaw;
-		field_6283 = player.field_6283;
+		bodyYaw = player.bodyYaw;
 	}
 	
 	private void resetCapeMovement()
 	{
-		field_7500 = x;
-		field_7521 = y;
-		field_7499 = z;
+		field_7500 = getX();
+		field_7521 = getY();
+		field_7499 = getZ();
 	}
 	
 	private void spawn()
@@ -66,11 +66,11 @@ public class FakePlayerEntity extends OtherClientPlayerEntity
 	
 	public void despawn()
 	{
-		world.removeEntity(getEntityId());
+		removed = true;
 	}
 	
 	public void resetPlayerPosition()
 	{
-		player.setPositionAndAngles(x, y, z, yaw, pitch);
+		player.setPositionAndAngles(getX(), getY(), getZ(), yaw, pitch);
 	}
 }
