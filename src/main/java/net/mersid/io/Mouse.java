@@ -43,7 +43,7 @@ public class Mouse implements UpdateListener {
 	public void onUpdate()
 	{
 		// Initialize HANDLE if needed.
-		if (HANDLE == -1) HANDLE = MinecraftClient.getInstance().window.getHandle();
+		if (HANDLE == -1) HANDLE = MinecraftClient.getInstance().getWindow().getHandle();
 		
 		if (isLeftDown())
 		{

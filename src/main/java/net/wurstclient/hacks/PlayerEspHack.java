@@ -236,10 +236,17 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 				.subtract(new Vec3d(e.getX(), e.getY(), e.getZ())
 					.subtract(e.prevX, e.prevY, e.prevZ)
 					.multiply(1 - partialTicks));
-			
+			/*
 			if(WURST.getFriends().contains(e.getEntityName()))
 				GL11.glColor4f(0, 0, 1, 0.5F);
 			else
+			{
+				float f = MC.player.distanceTo(e) / 20F;
+				GL11.glColor4f(2 - f, f, 0, 0.5F);
+			}*/
+			FriendsList friends = WurstClient.INSTANCE.getFriends();
+			// Render color
+			if (color.getSelected() == Color.RANGE)
 			{
 				float f = MC.player.distanceTo(e) / 20F;
 				GL11.glColor4f(2 - f, f, 0, 0.5F);

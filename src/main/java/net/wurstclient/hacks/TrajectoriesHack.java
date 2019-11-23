@@ -13,6 +13,8 @@ import net.wurstclient.Category;
 import net.wurstclient.events.RenderListener;
 import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.Hack;
+import net.wurstclient.util.RenderUtils;
+import net.wurstclient.util.RotationUtils;
 import net.wurstclient.util.TrajectoryPath;
 import org.lwjgl.opengl.GL11;
 
@@ -76,9 +78,11 @@ public class TrajectoriesHack extends Hack implements RenderListener {
 			GL11.glBegin(GL11.GL_LINE_STRIP);
 			for (Vec3d point : path)
 			{
+				Vec3d start =
+						RotationUtils.getClientLookVec().add(RenderUtils.getCameraPos());
 				//System.out.println("R: " + defaultred + ", G: " + defaultgreen + ", B: " + defaultblue + ", A: " + defaultalpha);
 				GL11.glColor4d(defaultred, defaultgreen, defaultblue, defaultalpha);
-				GL11.glVertex3d(point.x - BlockEntityRenderDispatcher.renderOffsetX, point.y - BlockEntityRenderDispatcher.renderOffsetY , point.z - BlockEntityRenderDispatcher.renderOffsetZ);
+				GL11.glVertex3d(point.x - start.x, point.y - start.y , point.z - start.z);
 			}
 			GL11.glEnd();
 		}
@@ -123,9 +127,9 @@ public class TrajectoriesHack extends Hack implements RenderListener {
 		// The three values indicate the arrow's position in space, using standard Minecraft coordinates.
 		// They will be updated each cycle until arrow impacts.
 		// Obviously, at this point, these values are very close to the firing entity's pos.
-		double arrowPosX = entity.prevRenderX + (entity.x - entity.prevRenderX) * MinecraftClient.getInstance().getTickDelta() - Math.cos((float)Math.toRadians(entity.yaw)) * 0.16f;
-		double arrowPosY = entity.prevRenderY + (entity.y - entity.prevRenderY) * MinecraftClient.getInstance().getTickDelta() + entity.getStandingEyeHeight() - 0.1;
-		double arrowPosZ = entity.prevRenderZ + (entity.z - entity.prevRenderZ) * MinecraftClient.getInstance().getTickDelta() - Math.sin((float)Math.toRadians(entity.yaw)) * 0.16f;
+		double arrowPosX = entity.prevRenderX + (entity.getX() - entity.prevRenderX) * MinecraftClient.getInstance().getTickDelta() - Math.cos((float)Math.toRadians(entity.yaw)) * 0.16f;
+		double arrowPosY = entity.prevRenderY + (entity.getY() - entity.prevRenderY) * MinecraftClient.getInstance().getTickDelta() + entity.getStandingEyeHeight() - 0.1;
+		double arrowPosZ = entity.prevRenderZ + (entity.getZ() - entity.prevRenderZ) * MinecraftClient.getInstance().getTickDelta() - Math.sin((float)Math.toRadians(entity.yaw)) * 0.16f;
 
 		// Motion factor. Arrows go faster than snowballs and all that...
 		double projectileMotionFactor = (item instanceof BowItem) ? 1.0 : 0.4;
