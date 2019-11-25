@@ -143,7 +143,7 @@ public class TrajectoriesHack extends Hack implements RenderListener {
 		// Right now, this is the value added after the first iteration.
 		// Bigger values likely means faster projectiles.
 		double projectileMotionX = (float) (-Math.sin(yaw) * Math.cos(pitch) * projectileMotionFactor);
-		double projectileMotionY = (float) (-Math.sin(pitch) * projectileMotionFactor);
+		double projectileMotionY = 0;//(float) (-Math.sin(pitch) * projectileMotionFactor);
 		double projectileMotionZ = (float) (Math.cos(yaw) * Math.cos(pitch) * projectileMotionFactor);
 
 		// 3D Pythagorean theorem. Returns the length of the vector representing the distance between the two points used to render a path.
@@ -195,7 +195,7 @@ public class TrajectoriesHack extends Hack implements RenderListener {
 			projectileMotionZ *= 0.999;
 
 			// Apply gravity drop to the motion.
-			projectileMotionY -= gravity * 0.1;
+			//projectileMotionY -= gravity * 0.1;
 		}
 
 		return path;
