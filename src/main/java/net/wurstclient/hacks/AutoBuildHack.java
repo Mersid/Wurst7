@@ -9,128 +9,203 @@ package net.wurstclient.hacks;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.wurstclient.Category;
+import net.wurstclient.events.RightClickListener;
 import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.Hack;
+import net.wurstclient.mixinterface.IClientPlayerInteractionManager;
+import net.wurstclient.settings.CheckboxSetting;
 import net.wurstclient.settings.FileSetting;
+import net.wurstclient.util.AutoBuildTemplate;
+import net.wurstclient.util.BlockUtils;
+import net.wurstclient.util.ChatUtils;
+import net.wurstclient.util.DefaultAutoBuildTemplates;
+import net.wurstclient.util.RotationUtils;
 import net.wurstclient.util.json.JsonException;
-import net.wurstclient.util.json.JsonUtils;
 
-public final class AutoBuildHack extends Hack implements UpdateListener
+public final class AutoBuildHack extends Hack
+	implements UpdateListener, RightClickListener
 {
-	private final FileSetting template =
+	private final FileSetting templateSetting =
 		new FileSetting("Template", "Determines what to build.", "autobuild",
-			folder -> createDefaultTemplates(folder));
+			folder -> DefaultAutoBuildTemplates.createFiles(folder));
+	
+	private final CheckboxSetting instaBuild = new CheckboxSetting("InstaBuild",
+		"Builds small templates (<= 64 blocks) instantly.\n"
+			+ "Turn this off if your template is not\n"
+			+ "being built correctly.",
+		true);
+	
+	private Status status = Status.NO_TEMPLATE;
+	private AutoBuildTemplate template;
+	private ArrayList<BlockPos> positions = new ArrayList<>();
 	
 	public AutoBuildHack()
 	{
 		super("AutoBuild", "Builds things automatically.");
 		setCategory(Category.BLOCKS);
-		addSetting(template);
+		addSetting(templateSetting);
+		addSetting(instaBuild);
+	}
+	
+	@Override
+	public String getRenderName()
+	{
+		String name = getName();
+		
+		switch(status)
+		{
+			case IDLE:
+			name += " [" + template.getName() + "]";
+			break;
+			
+			case LOADING:
+			name += " [Loading...]";
+			break;
+			
+			default:
+			break;
+		}
+		
+		return name;
 	}
 	
 	@Override
 	public void onEnable()
 	{
 		EVENTS.add(UpdateListener.class, this);
+		EVENTS.add(RightClickListener.class, this);
 	}
 	
 	@Override
 	public void onDisable()
 	{
 		EVENTS.remove(UpdateListener.class, this);
+		EVENTS.remove(RightClickListener.class, this);
+		
+		positions.clear();
+		
+		if(template == null)
+			status = Status.NO_TEMPLATE;
+		else
+			status = Status.IDLE;
 	}
 	
 	@Override
 	public void onUpdate()
 	{
-		
+		switch(status)
+		{
+			case NO_TEMPLATE:
+			loadSelectedTemplate();
+			break;
+			
+			case IDLE:
+			if(!template.isSelected(templateSetting))
+				loadSelectedTemplate();
+			break;
+			
+			default:
+			break;
+		}
 	}
 	
-	private void createDefaultTemplates(Path folder)
+	private void loadSelectedTemplate()
 	{
-		for(DefaultTemplate template : DefaultTemplate.values())
+		status = Status.LOADING;
+		Path path = templateSetting.getSelectedFile();
+		
+		try
 		{
-			JsonObject json = createJson(template);
+			template = AutoBuildTemplate.load(path);
+			status = Status.IDLE;
 			
-			Path path = folder.resolve(template.name + ".json");
+		}catch(IOException | JsonException e)
+		{
+			Path fileName = path.getFileName();
+			ChatUtils.error("Couldn't load template '" + fileName + "'.");
 			
-			try
+			String simpleClassName = e.getClass().getSimpleName();
+			String message = e.getMessage();
+			ChatUtils.message(simpleClassName + ": " + message);
+			
+			e.printStackTrace();
+			setEnabled(false);
+		}
+	}
+	
+	@Override
+	public void onRightClick(RightClickEvent event)
+	{
+		if(status != Status.IDLE)
+			return;
+		
+		HitResult hitResult = MC.crosshairTarget;
+		if(hitResult == null || hitResult.getPos() == null
+			|| hitResult.getType() != HitResult.Type.BLOCK
+			|| !(hitResult instanceof BlockHitResult))
+			return;
+		
+		BlockHitResult blockHitResult = (BlockHitResult)hitResult;
+		BlockPos hitResultPos = blockHitResult.getBlockPos();
+		if(!BlockUtils.canBeClicked(hitResultPos))
+			return;
+		
+		BlockPos startPos = hitResultPos.offset(blockHitResult.getSide());
+		Direction direction = MC.player.getHorizontalFacing();
+		positions = template.getPositions(startPos, direction);
+		
+		if(instaBuild.isChecked() && positions.size() <= 64)
+			buildInstantly();
+	}
+	
+	private void buildInstantly()
+	{
+		Vec3d eyesPos = RotationUtils.getEyesPos();
+		IClientPlayerInteractionManager im = IMC.getInteractionManager();
+		
+		for(BlockPos pos : positions)
+		{
+			if(!BlockUtils.getState(pos).getMaterial().isReplaceable())
+				continue;
+			
+			Vec3d posVec = new Vec3d(pos).add(0.5, 0.5, 0.5);
+			
+			for(Direction side : Direction.values())
 			{
-				JsonUtils.toJson(json, path);
+				BlockPos neighbor = pos.offset(side);
 				
-			}catch(IOException | JsonException e)
-			{
-				System.out.println("Couldn't save " + path.getFileName());
-				e.printStackTrace();
+				// check if neighbor can be right-clicked
+				if(!BlockUtils.canBeClicked(neighbor))
+					continue;
+				
+				Vec3d sideVec = new Vec3d(side.getVector());
+				Vec3d hitVec = posVec.add(sideVec.multiply(0.5));
+				
+				// check if hitVec is within range (6 blocks)
+				if(eyesPos.squaredDistanceTo(hitVec) > 36)
+					continue;
+				
+				// place block
+				im.rightClickBlock(neighbor, side.getOpposite(), hitVec);
+				
+				break;
 			}
 		}
 	}
 	
-	private JsonObject createJson(DefaultTemplate template)
+	private enum Status
 	{
-		JsonObject json = new JsonObject();
-		JsonElement blocks = JsonUtils.GSON.toJsonTree(template.data);
-		json.add("blocks", blocks);
-		
-		return json;
-	}
-	
-	private static enum DefaultTemplate
-	{
-		BRIDGE("Bridge",
-			new int[][]{{0, 0, 0}, {1, 0, 0}, {1, 0, -1}, {0, 0, -1},
-				{-1, 0, -1}, {-1, 0, 0}, {-1, 0, -2}, {0, 0, -2}, {1, 0, -2},
-				{1, 0, -3}, {0, 0, -3}, {-1, 0, -3}, {-1, 0, -4}, {0, 0, -4},
-				{1, 0, -4}, {1, 0, -5}, {0, 0, -5}, {-1, 0, -5}}),
-		
-		FLOOR("Floor",
-			new int[][]{{0, 0, 0}, {0, 0, 1}, {1, 0, 1}, {1, 0, 0}, {1, 0, -1},
-				{0, 0, -1}, {-1, 0, -1}, {-1, 0, 0}, {-1, 0, 1}, {-1, 0, 2},
-				{0, 0, 2}, {1, 0, 2}, {2, 0, 2}, {2, 0, 1}, {2, 0, 0},
-				{2, 0, -1}, {2, 0, -2}, {1, 0, -2}, {0, 0, -2}, {-1, 0, -2},
-				{-2, 0, -2}, {-2, 0, -1}, {-2, 0, 0}, {-2, 0, 1}, {-2, 0, 2},
-				{-2, 0, 3}, {-1, 0, 3}, {0, 0, 3}, {1, 0, 3}, {2, 0, 3},
-				{3, 0, 3}, {3, 0, 2}, {3, 0, 1}, {3, 0, 0}, {3, 0, -1},
-				{3, 0, -2}, {3, 0, -3}, {2, 0, -3}, {1, 0, -3}, {0, 0, -3},
-				{-1, 0, -3}, {-2, 0, -3}, {-3, 0, -3}, {-3, 0, -2}, {-3, 0, -1},
-				{-3, 0, 0}, {-3, 0, 1}, {-3, 0, 2}, {-3, 0, 3}}),
-		
-		PILLAR("Pillar",
-			new int[][]{{0, 0, 0}, {0, 1, 0}, {0, 2, 0}, {0, 3, 0}, {0, 4, 0},
-				{0, 5, 0}, {0, 6, 0}}),
-		
-		WALL("Wall",
-			new int[][]{{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {-1, 1, 0},
-				{-1, 0, 0}, {-2, 0, 0}, {-2, 1, 0}, {-2, 2, 0}, {-1, 2, 0},
-				{0, 2, 0}, {1, 2, 0}, {2, 2, 0}, {2, 1, 0}, {2, 0, 0},
-				{3, 0, 0}, {3, 1, 0}, {3, 2, 0}, {3, 3, 0}, {2, 3, 0},
-				{1, 3, 0}, {0, 3, 0}, {-1, 3, 0}, {-2, 3, 0}, {-3, 3, 0},
-				{-3, 2, 0}, {-3, 1, 0}, {-3, 0, 0}, {-3, 4, 0}, {-2, 4, 0},
-				{-1, 4, 0}, {0, 4, 0}, {1, 4, 0}, {2, 4, 0}, {3, 4, 0},
-				{3, 5, 0}, {2, 5, 0}, {1, 5, 0}, {0, 5, 0}, {-1, 5, 0},
-				{-2, 5, 0}, {-3, 5, 0}, {-3, 6, 0}, {-2, 6, 0}, {-1, 6, 0},
-				{0, 6, 0}, {1, 6, 0}, {2, 6, 0}, {3, 6, 0}}),
-		
-		WURST("Wurst",
-			new int[][]{{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}, {0, 1, 1},
-				{1, 1, 1}, {2, 1, 1}, {2, 1, 0}, {2, 0, 0}, {2, 1, -1},
-				{1, 1, -1}, {0, 1, -1}, {-1, 1, -1}, {-1, 1, 0}, {-1, 0, 0},
-				{-2, 0, 0}, {-2, 1, 0}, {-2, 1, 1}, {-1, 1, 1}, {-1, 2, 0},
-				{0, 2, 0}, {1, 2, 0}, {2, 2, 0}, {3, 1, 0}, {-2, 1, -1},
-				{-2, 2, 0}, {-3, 1, 0}});
-		
-		private final String name;
-		private final int[][] data;
-		
-		private DefaultTemplate(String name, int[][] data)
-		{
-			this.name = name;
-			this.data = data;
-		}
+		NO_TEMPLATE,
+		LOADING,
+		IDLE,
+		BUILDING;
 	}
 }

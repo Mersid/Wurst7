@@ -47,8 +47,8 @@ public enum WurstClient
 	public static final MinecraftClient MC = MinecraftClient.getInstance();
 	public static final IMinecraftClient IMC = (IMinecraftClient)MC;
 	
-	public static final String VERSION = "7.0pre18";
-	public static final String MC_VERSION = "1.15-pre4";
+	public static final String VERSION = "7.0pre19";
+	public static final String MC_VERSION = "1.15";
 	
 	private WurstAnalytics analytics;
 	private EventManager eventManager;
@@ -139,7 +139,7 @@ public enum WurstClient
 	
 	private Path createWurstFolder()
 	{
-		Path dotMinecraftFolder = MC.runDirectory.toPath();
+		Path dotMinecraftFolder = MC.runDirectory.toPath().normalize();
 		Path wurstFolder = dotMinecraftFolder.resolve("wurst");
 		
 		try
