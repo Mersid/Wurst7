@@ -8,6 +8,7 @@
 package net.wurstclient.hacks;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -94,7 +95,7 @@ public final class MobEspHack extends Hack implements UpdateListener,
 		mobs.clear();
 		
 		Stream<MobEntity> stream =
-			StreamSupport.stream(MC.world.getEntities().spliterator(), true)
+			StreamSupport.stream(Objects.requireNonNull(MC.world).getEntities().spliterator(), false)
 				.filter(e -> e instanceof MobEntity).map(e -> (MobEntity)e)
 				.filter(e -> !e.removed && e.getHealth() > 0);
 		
