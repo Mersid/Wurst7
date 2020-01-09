@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 - 2019 | Wurst-Imperium | All rights reserved.
+ * Copyright (C) 2014 - 2020 | Alexander01998 | All rights reserved.
  *
  * This source code is subject to the terms of the GNU General Public
  * License, version 3. If a copy of the GPL was not distributed with this
@@ -18,7 +18,7 @@ public enum MultiProcessingUtils
 {
 	;
 	
-	public static ProcessBuilder makeProcess(Class mainClass, String... args)
+	public static ProcessBuilder makeProcess(Class<?> mainClass, String... args)
 		throws IOException
 	{
 		ArrayList<String> cmd = new ArrayList<>();
@@ -31,13 +31,13 @@ public enum MultiProcessingUtils
 		return new ProcessBuilder(cmd);
 	}
 	
-	public static Process startProcess(Class mainClass, String... args)
+	public static Process startProcess(Class<?> mainClass, String... args)
 		throws IOException
 	{
 		return makeProcess(mainClass, args).inheritIO().start();
 	}
 	
-	public static Process startProcessWithIO(Class mainClass, String... args)
+	public static Process startProcessWithIO(Class<?> mainClass, String... args)
 		throws IOException
 	{
 		return makeProcess(mainClass, args).start();
