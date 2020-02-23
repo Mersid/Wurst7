@@ -193,4 +193,16 @@ public class AutoToolHack extends Hack implements BlockBreakingProgressListener,
 		return repairMode && stack.getMaxDamage() - stack.getDamage() <= 4;
 	}
 
+	/*
+	Solely for the benefit of the Nuker mods which depends on this.
+	 */
+	public void equipIfEnabled(BlockPos pos)
+	{
+		if(!isEnabled())
+			return;
+
+		equipBestTool(pos, useSwords.isChecked(), useHands.isChecked(),
+				repairMode.isChecked());
+	}
+
 }
