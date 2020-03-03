@@ -12,6 +12,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import net.mersid.io.Mouse;
 import org.lwjgl.glfw.GLFW;
@@ -27,6 +30,7 @@ import net.wurstclient.analytics.WurstAnalytics;
 import net.wurstclient.clickgui.ClickGui;
 import net.wurstclient.command.CmdList;
 import net.wurstclient.command.CmdProcessor;
+import net.wurstclient.command.Command;
 import net.wurstclient.event.EventManager;
 import net.wurstclient.events.ChatOutputListener;
 import net.wurstclient.events.GUIRenderListener;
@@ -34,6 +38,7 @@ import net.wurstclient.events.KeyPressListener;
 import net.wurstclient.events.PostMotionListener;
 import net.wurstclient.events.PreMotionListener;
 import net.wurstclient.events.UpdateListener;
+import net.wurstclient.hack.Hack;
 import net.wurstclient.hack.HackList;
 import net.wurstclient.hud.IngameHUD;
 import net.wurstclient.keybinds.KeybindList;
@@ -41,8 +46,10 @@ import net.wurstclient.keybinds.KeybindProcessor;
 import net.wurstclient.mixinterface.IMinecraftClient;
 import net.wurstclient.navigator.Navigator;
 import net.wurstclient.other_feature.OtfList;
+import net.wurstclient.other_feature.OtherFeature;
 import net.wurstclient.settings.SettingsFile;
 import net.wurstclient.update.WurstUpdater;
+import net.wurstclient.util.json.JsonException;
 
 public enum WurstClient
 {
@@ -51,7 +58,7 @@ public enum WurstClient
 	public static final MinecraftClient MC = MinecraftClient.getInstance();
 	public static final IMinecraftClient IMC = (IMinecraftClient)MC;
 	
-	public static final String VERSION = "7.0";
+	public static final String VERSION = "7.1";
 	public static final String MC_VERSION = "1.15.2";
 	
 	private WurstAnalytics analytics;
@@ -61,6 +68,7 @@ public enum WurstClient
 	private CmdList cmds;
 	private OtfList otfs;
 	private SettingsFile settingsFile;
+	private Path settingsProfileFolder;
 	private KeybindList keybinds;
 	private ClickGui gui;
 	private Navigator navigator;
@@ -98,8 +106,10 @@ public enum WurstClient
 		otfs = new OtfList();
 		
 		Path settingsFile = wurstFolder.resolve("settings.json");
+		settingsProfileFolder = wurstFolder.resolve("settings");
 		this.settingsFile = new SettingsFile(settingsFile, hax, cmds, otfs);
 		this.settingsFile.load();
+		hax.tooManyHaxHack.loadBlockedHacksFile();
 		
 		Path keybindsFile = wurstFolder.resolve("keybinds.json");
 		keybinds = new KeybindList(keybindsFile);
@@ -212,6 +222,34 @@ public enum WurstClient
 		settingsFile.save();
 	}
 	
+	public ArrayList<Path> listSettingsProfiles()
+	{
+		if(!Files.isDirectory(settingsProfileFolder))
+			return new ArrayList<>();
+		
+		try(Stream<Path> files = Files.list(settingsProfileFolder))
+		{
+			return files.filter(Files::isRegularFile)
+				.collect(Collectors.toCollection(() -> new ArrayList<>()));
+			
+		}catch(IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void loadSettingsProfile(String fileName)
+		throws IOException, JsonException
+	{
+		settingsFile.loadProfile(settingsProfileFolder.resolve(fileName));
+	}
+	
+	public void saveSettingsProfile(String fileName)
+		throws IOException, JsonException
+	{
+		settingsFile.saveProfile(settingsProfileFolder.resolve(fileName));
+	}
+	
 	public HackList getHax()
 	{
 		return hax;
@@ -225,6 +263,23 @@ public enum WurstClient
 	public OtfList getOtfs()
 	{
 		return otfs;
+	}
+	
+	public Feature getFeatureByName(String name)
+	{
+		Hack hack = getHax().getHackByName(name);
+		if(hack != null)
+			return hack;
+		
+		Command cmd = getCmds().getCmdByName(name.substring(1));
+		if(cmd != null)
+			return cmd;
+		
+		OtherFeature otf = getOtfs().getOtfByName(name);
+		if(otf != null)
+			return otf;
+		
+		return null;
 	}
 	
 	public KeybindList getKeybinds()
