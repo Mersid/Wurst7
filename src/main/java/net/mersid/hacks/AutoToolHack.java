@@ -14,12 +14,13 @@ import net.minecraft.item.SwordItem;
 import net.minecraft.util.math.BlockPos;
 import net.wurstclient.Category;
 import net.wurstclient.events.BlockBreakingProgressListener;
+import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.Hack;
 import net.wurstclient.settings.CheckboxSetting;
 import net.wurstclient.util.BlockUtils;
 import net.wurstclient.util.WItem;
 
-public class AutoToolHack extends Hack implements BlockBreakingProgressListener, LeftUpEventListener {
+public class AutoToolHack extends Hack implements BlockBreakingProgressListener, LeftUpEventListener, UpdateListener {
 	
 	private final CheckboxSetting useSwords = new CheckboxSetting("Use swords",
 			"Uses swords to break\n" + "leaves, cobwebs, etc.", false);
@@ -60,6 +61,8 @@ public class AutoToolHack extends Hack implements BlockBreakingProgressListener,
 	{
 		EVENTS.add(BlockBreakingProgressListener.class, this);
 		EVENTS.add(LeftUpEventListener.class, this);
+
+		EVENTS.add(UpdateListener.class, this);
 	}
 	
 	@Override
@@ -67,6 +70,8 @@ public class AutoToolHack extends Hack implements BlockBreakingProgressListener,
 	{
 		EVENTS.remove(BlockBreakingProgressListener.class, this);
 		EVENTS.remove(LeftUpEventListener.class, this);
+
+		EVENTS.remove(UpdateListener.class, this);
 	}
 	
 	/**
@@ -204,5 +209,12 @@ public class AutoToolHack extends Hack implements BlockBreakingProgressListener,
 		equipBestTool(pos, useSwords.isChecked(), useHands.isChecked(),
 				repairMode.isChecked());
 	}
-
+	long cwTimeMillis = 0;
+	@Override
+	public void onUpdate()
+	{
+		long nt = System.currentTimeMillis();
+		System.out.println(nt - cwTimeMillis);
+		cwTimeMillis = nt;
+	}
 }
