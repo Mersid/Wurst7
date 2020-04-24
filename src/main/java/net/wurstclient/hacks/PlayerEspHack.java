@@ -71,7 +71,9 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 		EVENTS.add(UpdateListener.class, this);
 		EVENTS.add(CameraTransformViewBobbingListener.class, this);
 		EVENTS.add(RenderListener.class, this);
-		
+
+		WURST.getHax().murderEspHack.setEnabled(false);
+
 		playerBox = GL11.glGenLists(1);
 		GL11.glNewList(playerBox, GL11.GL_COMPILE);
 		Box bb = new Box(-0.5, 0, -0.5, 0.5, 1, 0.5);
