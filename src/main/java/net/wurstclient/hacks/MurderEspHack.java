@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.ItemStack;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class MurderEspHack extends Hack implements UpdateListener, RenderListener {
 
@@ -34,6 +36,7 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 	private final List<PlayerEntity> players = new ArrayList<>();
 	private final List<PlayerEntity> murderers = new ArrayList<>();
 	private final List<PlayerEntity> detectives = new ArrayList<>();
+	private List<ArmorStandEntity> bowArmorStands;
 
 	private int playerBox;
 
@@ -75,6 +78,7 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 		checkWorldUpdated();
 		updatePlayers();
 		updatePlayerNames();
+		updateArmorStands();
 
 		for (PlayerEntity player : players)
 		{
@@ -84,12 +88,11 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 				murderers.add(player);
 				detectives.remove(player);
 			}
-			else if (player.getEquippedStack(EquipmentSlot.MAINHAND).getItem() instanceof BowItem)
+			else if (player.getEquippedStack(EquipmentSlot.MAINHAND).getItem() instanceof BowItem && !murderers.contains(player))
 			{
 				detectives.add(player);
 			}
 		}
-
 	}
 
 	@Override
@@ -144,6 +147,25 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 
 			GL11.glPopMatrix();
 		}
+
+		for (ArmorStandEntity e : bowArmorStands)
+		{
+			GL11.glPushMatrix();
+
+			GL11.glTranslated(e.prevX + (e.getX() - e.prevX) * partialTicks,
+					e.prevY + (e.getY() - e.prevY) * partialTicks,
+					e.prevZ + (e.getZ() - e.prevZ) * partialTicks);
+
+			GL11.glScaled(e.getWidth() + extraSize, e.getHeight() + extraSize,
+					e.getWidth() + extraSize);
+
+			// set color
+			GL11.glColor4f(1, 0, 1, 0.5F);
+
+			GL11.glCallList(playerBox);
+
+			GL11.glPopMatrix();
+		}
 	}
 
 	private void renderTracers(double partialTicks)
@@ -163,6 +185,19 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 			GL11.glVertex3d(start.x, start.y, start.z);
 			GL11.glVertex3d(end.x, end.y, end.z);
 		}
+
+		for(ArmorStandEntity e : bowArmorStands)
+		{
+			Vec3d end = e.getBoundingBox().getCenter()
+					.subtract(new Vec3d(e.getX(), e.getY(), e.getZ()).subtract(e.prevX, e.prevY, e.prevZ).multiply(1 - partialTicks));
+
+			// set color
+			GL11.glColor4f(1, 0, 1, 0.5F);
+
+			GL11.glVertex3d(start.x, start.y, start.z);
+			GL11.glVertex3d(end.x, end.y, end.z);
+		}
+
 		GL11.glEnd();
 	}
 
@@ -221,6 +256,15 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 		players.addAll(stream.collect(Collectors.toList()));
 	}
 
+	private void updateArmorStands()
+	{
+		bowArmorStands = StreamSupport.stream(MC.world.getEntities().spliterator(), false)
+				.filter(e -> e instanceof ArmorStandEntity)
+				.map(e -> (ArmorStandEntity)e)
+				.filter(e -> e.getStackInHand(Hand.MAIN_HAND).getItem() instanceof BowItem)
+				.collect(Collectors.toList());
+	}
+
 	private void updatePlayerNames()
 	{
 		playerNames = MinecraftClient.getInstance().getNetworkHandler().getPlayerList().stream()
@@ -253,6 +297,7 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 		weaponList.add("diamond_hoe");
 		weaponList.add("shears");
 		weaponList.add("fish");
+		weaponList.add("salmon");
 
 		return weaponList;
 	}
