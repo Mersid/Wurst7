@@ -236,23 +236,30 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 		weaponList.add("stick");
 		weaponList.add("wooden_axe");
 		weaponList.add("wooden_sword");
+		weaponList.add("dead_bush");
 		weaponList.add("stone_shovel");
 		weaponList.add("blaze_rod");
 		weaponList.add("diamond_shovel");
 		weaponList.add("feather");
 		weaponList.add("pumpkin_pie");
 		weaponList.add("golden_pickaxe");
+		weaponList.add("apple");
+		weaponList.add("name_tag");
+		weaponList.add("sponge");
 		weaponList.add("carrot_on_a_stick");
 		weaponList.add("bone");
 		weaponList.add("carrot");
 		weaponList.add("golden_carrot");
 		weaponList.add("cookie");
 		weaponList.add("diamond_axe");
+		weaponList.add("rose_bush");
 		weaponList.add("golden_sword");
 		weaponList.add("diamond_sword");
 		weaponList.add("diamond_hoe");
 		weaponList.add("shears");
-		weaponList.add("fish");
+		weaponList.add("salmon");
+		weaponList.add("redstone_torch");
+		weaponList.add("oak_boat");
 
 		return weaponList;
 	}
