@@ -7,6 +7,7 @@ import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -16,6 +17,8 @@ import net.wurstclient.WurstClient;
 import net.wurstclient.events.RenderListener;
 import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.Hack;
+import net.wurstclient.settings.CheckboxSetting;
+import net.wurstclient.util.ChatUtils;
 import net.wurstclient.util.FakePlayerEntity;
 import net.wurstclient.util.RenderUtils;
 import net.wurstclient.util.RotationUtils;
@@ -37,10 +40,27 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 
 	private int playerBox;
 
+
+	private final CheckboxSetting broadcastToSelf = new CheckboxSetting(
+			"Broadcast murderers to self", "Lists the murderers in the chat. Only you can see it.", false);
+
+	private final CheckboxSetting broadcastToAll = new CheckboxSetting(
+			"Broadcast murderers to public", "Automatically lists  the murderers are to the public chat.", false);
+
+	private final CheckboxSetting broadcastToFriends = new CheckboxSetting(
+			"Broadcast murderers to friends",
+			"Automatically lists the murderers to all friends in the same match using /msg. \n" +
+			"This might look very suspicious if you have multiple friends on!", false);
+
+
 	public MurderEspHack()
 	{
 		super("MurderESP", "Attempts to detect murderers in Hypixel's Murder Mystery minigame.");
 		setCategory(Category.RENDER);
+
+		addSetting(broadcastToSelf);
+		addSetting(broadcastToAll);
+		addSetting(broadcastToFriends);
 	}
 
 	@Override
@@ -79,10 +99,20 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 		for (PlayerEntity player : players)
 		{
 			// Test if murderer
-			if (murderWeapons.contains(player.getEquippedStack(EquipmentSlot.MAINHAND).getItem().toString()))
+			if (murderWeapons.contains(player.getEquippedStack(EquipmentSlot.MAINHAND).getItem().toString()) && !murderers.contains(player))
 			{
 				murderers.add(player);
 				detectives.remove(player);
+
+				if (broadcastToSelf.isChecked())
+					ChatUtils.message("\u00a76MurderESP: \u00a7c" + player.getEntityName() + " \u00a7r is a murderer!");
+
+				if (broadcastToFriends.isChecked())
+					broadcastMurdererToFriends(player);
+
+				if (broadcastToAll.isChecked())
+					broadcastMurdererToAll(player);
+
 			}
 			else if (player.getEquippedStack(EquipmentSlot.MAINHAND).getItem() instanceof BowItem)
 			{
@@ -225,6 +255,28 @@ public class MurderEspHack extends Hack implements UpdateListener, RenderListene
 	{
 		playerNames = MinecraftClient.getInstance().getNetworkHandler().getPlayerList().stream()
 				.map(e -> e.getProfile().getName()).collect(Collectors.toList());
+	}
+
+	private void broadcastMurdererToFriends(PlayerEntity murderer)
+	{
+		for (String playerName : playerNames)
+		{
+			if (WURST.getFriends().contains(playerName))
+			{
+				say("/msg " + playerName + " " + murderer.getEntityName() + " is a murderer!");
+			}
+		}
+	}
+
+	private void broadcastMurdererToAll(PlayerEntity murderer)
+	{
+		say(murderer.getEntityName() + " is a murderer!");
+	}
+
+	// Sends a chat message to the server
+	private void say(String message)
+	{
+		MC.getNetworkHandler().sendPacket(new ChatMessageC2SPacket(message));
 	}
 
 	private List<String> getMurderWeapons()
