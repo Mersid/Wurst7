@@ -63,6 +63,9 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 	private final CheckboxSetting filterInvisible = new CheckboxSetting(
 			"Filter invisible", "Won't show invisible players.", false);
 
+	private final CheckboxSetting filterNonFriends = new CheckboxSetting(
+			"Filter non-friends", "Won't show players that are not in your friends list", false);
+	
 	private int playerBox;
 	private final ArrayList<PlayerEntity> players = new ArrayList<>();
 
@@ -77,6 +80,7 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 		addSetting(color);
 		addSetting(filterSleeping);
 		addSetting(filterInvisible);
+		addSetting(filterNonFriends);
 	}
 
 	@Override
@@ -125,6 +129,9 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 		if(filterInvisible.isChecked())
 			stream = stream.filter(e -> !e.isInvisible());
 
+		if (filterNonFriends.isChecked())
+			stream = stream.filter(e -> WURST.getFriends().contains(e.getName().getString()));
+		
 		players.addAll(stream.collect(Collectors.toList()));
 	}
 
