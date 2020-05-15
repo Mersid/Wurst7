@@ -3,13 +3,14 @@ package net.wurstclient.hacks;
 import net.minecraft.network.Packet;
 import net.wurstclient.Category;
 import net.wurstclient.events.PacketInputListener;
+import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.Hack;
 import net.wurstclient.settings.CheckboxSetting;
 
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ServerPacketLoggerHack extends Hack implements PacketInputListener {
+public class ServerPacketLoggerHack extends Hack implements PacketInputListener, UpdateListener {
 
 	private final Map<String, Integer> packetCountMap = new TreeMap<>();
 	private long enableTime;
@@ -28,6 +29,7 @@ public class ServerPacketLoggerHack extends Hack implements PacketInputListener 
 	public void onEnable()
 	{
 		EVENTS.add(PacketInputListener.class, this);
+		EVENTS.add(UpdateListener.class, this);
 		enableTime = System.currentTimeMillis();
 	}
 
@@ -35,12 +37,15 @@ public class ServerPacketLoggerHack extends Hack implements PacketInputListener 
 	protected void onDisable()
 	{
 		EVENTS.remove(PacketInputListener.class, this);
+		EVENTS.remove(UpdateListener.class, this);
 
 		System.out.println(dumpMap());
 		System.out.println("Scan time: " + ((System.currentTimeMillis() - enableTime) / 1000f));
+		System.out.println("Ticks passed: " + ticks);
 
 		if (clearMap.isChecked())
 			packetCountMap.clear();
+		ticks = 0;
 	}
 
 	@Override
@@ -64,5 +69,12 @@ public class ServerPacketLoggerHack extends Hack implements PacketInputListener 
 			stringBuilder.append(set.getKey()).append(": ").append(set.getValue()).append("\n");
 		}
 		return stringBuilder.toString();
+	}
+
+	int ticks;
+	@Override
+	public void onUpdate()
+	{
+		ticks++;
 	}
 }
