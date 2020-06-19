@@ -1,6 +1,7 @@
 package net.wurstclient.hacks;
 
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.wurstclient.Category;
 import net.wurstclient.events.PacketInputListener;
 import net.wurstclient.events.UpdateListener;
@@ -52,6 +53,12 @@ public class ServerPacketLoggerHack extends Hack implements PacketInputListener,
 	public void onReceivedPacket(PacketInputEvent event)
 	{
 		addPacket(event.getPacket());
+
+		if (event.getPacket() instanceof WorldTimeUpdateS2CPacket)
+		{
+			WorldTimeUpdateS2CPacket packet = (WorldTimeUpdateS2CPacket)event.getPacket();
+
+		}
 	}
 
 	private void addPacket(Packet<?> packet)
