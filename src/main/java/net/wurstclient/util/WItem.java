@@ -30,6 +30,6 @@ public final class WItem
 	
 	public static float getDestroySpeed(ItemStack stack, BlockState state)
 	{
-		return isNullOrEmpty(stack) ? 1 : stack.getMiningSpeed(state);
+		return isNullOrEmpty(stack) ? 1 : stack.getMiningSpeedMultiplier(state);
 	}
 }

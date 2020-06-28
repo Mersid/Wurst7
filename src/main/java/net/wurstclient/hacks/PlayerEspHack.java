@@ -223,7 +223,7 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 				}
 				else
 				{
-					ColorCode colorCode = GetBestColorCode(e.getDisplayName().asFormattedString());
+					ColorCode colorCode = GetBestColorCode(e.getDisplayName().getString());
 					GL11.glColor4f(colorCode.r, colorCode.g, colorCode.b, 0.5f);
 				}
 			}
@@ -287,7 +287,7 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 				}
 				else
 				{
-					ColorCode colorCode = GetBestColorCode(e.getDisplayName().asFormattedString());
+					ColorCode colorCode = GetBestColorCode(e.getDisplayName().getString());
 					GL11.glColor4f(colorCode.r, colorCode.g, colorCode.b, 0.5f);
 				}
 			}

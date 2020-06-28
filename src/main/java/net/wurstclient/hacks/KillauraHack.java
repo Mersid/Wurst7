@@ -66,6 +66,9 @@ public final class KillauraHack extends Hack
 
 	private final CheckboxSetting filterPlayers = new CheckboxSetting(
 		"Filter players", "Won't attack other players.", false);
+
+	private final CheckboxSetting filterFriends = new CheckboxSetting(
+			"Filter friends", "WWon't attack your friends.", true);
 	
 	private final CheckboxSetting filterSleeping =
 		new CheckboxSetting("Filter sleeping",
@@ -189,7 +192,7 @@ public final class KillauraHack extends Hack
 
 		if (filterFriends.isChecked())
 		{
-			stream = stream.filter(e -> !WurstClient.INSTANCE.getFriends().contains(e.getName().asString()));
+			stream = stream.filter(e -> !WurstClient.INSTANCE.getFriends().contains(e.getName().getString()));
 		}
 		if(filterSleeping.isChecked())
 			stream = stream.filter(e -> !(e instanceof PlayerEntity

@@ -35,7 +35,7 @@ public final class HealthTagsHack extends Hack
 			return nametag;
 
 		float health = entity.getHealth();
-		float maxHealth = entity.getMaximumHealth();
+		float maxHealth = entity.getMaxHealth();
 
 		if (showMaxHealth.isChecked())
 			return nametag + " " + getColor(health, maxHealth) + (int)health + "/" + (int)maxHealth;

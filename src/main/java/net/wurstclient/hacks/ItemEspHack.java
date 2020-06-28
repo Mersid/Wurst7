@@ -158,7 +158,7 @@ public final class ItemEspHack extends Hack implements UpdateListener,
 			{
 				ItemStack stack = e.getStack();
 
-				e.setCustomName(new LiteralText(stack.getCount() + "x " + stack.getName().asFormattedString()));
+				e.setCustomName(new LiteralText(stack.getCount() + "x " + stack.getName().getString()));
 				if (!e.isCustomNameVisible()) e.setCustomNameVisible(true);
 			}
 			else

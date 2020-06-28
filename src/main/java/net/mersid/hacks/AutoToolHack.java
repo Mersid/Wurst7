@@ -123,7 +123,7 @@ public class AutoToolHack extends Hack implements BlockBreakingProgressListener,
 			if(slot == inventory.selectedSlot)
 				continue;
 			
-			ItemStack stack = inventory.getInvStack(slot);
+			ItemStack stack = inventory.getStack(slot);
 			
 			if(fallbackSlot == -1 && !isDamageable(stack))
 				fallbackSlot = slot;
