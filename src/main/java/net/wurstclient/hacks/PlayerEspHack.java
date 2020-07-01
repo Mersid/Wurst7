@@ -14,6 +14,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.wurstclient.FriendsList;
 import net.wurstclient.WurstClient;
 import net.wurstclient.util.ColorCode;
@@ -254,6 +258,8 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 				float f = MC.player.distanceTo(e) / 20F;
 				GL11.glColor4f(2 - f, f, 0, 0.5F);
 			}*/
+
+			getBestFormattingCode(e.getDisplayName());
 			FriendsList friends = WurstClient.INSTANCE.getFriends();
 			// Render color
 			if (color.getSelected() == Color.RANGE)
@@ -296,6 +302,22 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 			GL11.glVertex3d(end.x, end.y, end.z);
 		}
 		GL11.glEnd();
+	}
+
+	private Formatting getBestFormattingCode(Text text)
+	{
+		if (!text.getString().contains("Mersid")) return null;
+
+		//System.out.println(text.getString() + ": " + text.getSiblings().size() /*text.getSiblings().get(text.getSiblings().size() - 1).getStyle().getColor()*/);
+		/*System.out.println("PRINT START WITH USERNAME " + text.getString() + "  SIBLING COUNT " + text.getSiblings().size() + " STYLE " + text.getStyle());
+		for (Text sibling : text.getSiblings())
+		{
+			System.out.println(sibling.getString() + ": " + sibling.getStyle());
+		}
+		System.out.println("PRINT COMPLETE");*/
+
+		MC.textRenderer.draw(, text, 100, 100, 0xFFFFFFFF);
+		return null;
 	}
 
 	// The following methods are used to determine the player's team color without using the scoreboard.
