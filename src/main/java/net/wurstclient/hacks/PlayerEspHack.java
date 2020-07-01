@@ -322,7 +322,7 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 			int r = (int)(cc.r * 255);
 			int g = (int)(cc.g * 255);
 			int b = (int)(cc.b * 255);
-			return TextColor.fromRgb((b << 16) + (g << 8) + r);
+			return TextColor.fromRgb((r << 16) + (g << 8) + b);
 		}
 
 		TextColor textColor = text.getStyle().getColor();
