@@ -14,9 +14,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
 import net.wurstclient.FriendsList;
 import net.wurstclient.WurstClient;
@@ -227,8 +226,8 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 				}
 				else
 				{
-					ColorCode colorCode = GetBestColorCode(e.getDisplayName().getString());
-					GL11.glColor4f(colorCode.r, colorCode.g, colorCode.b, 0.5f);
+					int color = getBestFormattingCode(e.getDisplayName()).getRgb();
+					GL11.glColor4f(((color >> 16) & 0xFF) / 255f, ((color >> 8) & 0xFF) / 255f, (color & 0xFF) / 255f, 0.5f);
 				}
 			}
 			
@@ -259,7 +258,6 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 				GL11.glColor4f(2 - f, f, 0, 0.5F);
 			}*/
 
-			getBestFormattingCode(e.getDisplayName());
 			FriendsList friends = WurstClient.INSTANCE.getFriends();
 			// Render color
 			if (color.getSelected() == Color.RANGE)
@@ -293,8 +291,8 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 				}
 				else
 				{
-					ColorCode colorCode = GetBestColorCode(e.getDisplayName().getString());
-					GL11.glColor4f(colorCode.r, colorCode.g, colorCode.b, 0.5f);
+					int color = getBestFormattingCode(e.getDisplayName()).getRgb();
+					GL11.glColor4f(((color >> 16) & 0xFF) / 255f, ((color >> 8) & 0xFF) / 255f, (color & 0xFF) / 255f, 0.5f);
 				}
 			}
 			
@@ -304,21 +302,34 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 		GL11.glEnd();
 	}
 
-	private Formatting getBestFormattingCode(Text text)
+	private TextColor getBestFormattingCode(Text text)
 	{
-		if (!text.getString().contains("Mersid")) return null;
+		//if (!text.getString().contains("Mersid") && !text.getString().contains("Carpenter")) return null;
 
 		//System.out.println(text.getString() + ": " + text.getSiblings().size() /*text.getSiblings().get(text.getSiblings().size() - 1).getStyle().getColor()*/);
-		/*System.out.println("PRINT START WITH USERNAME " + text.getString() + "  SIBLING COUNT " + text.getSiblings().size() + " STYLE " + text.getStyle());
-		for (Text sibling : text.getSiblings())
+		//System.out.println("PRINT START WITH USERNAME " + text.toString() + "  SIBLING COUNT " + text.getSiblings().size() + " STYLE " + text.getStyle());
+		/*for (Text sibling : text.getSiblings())
 		{
 			System.out.println(sibling.getString() + ": " + sibling.getStyle());
-		}
-		System.out.println("PRINT COMPLETE");*/
+		}*/
+		//System.out.println("PRINT COMPLETE");
 
-		MC.textRenderer.draw(, text, 100, 100, 0xFFFFFFFF);
-		return null;
+
+		// Handle old color method if available
+		if (text.getString().contains("\u00a7"))
+		{
+			ColorCode cc = GetBestColorCode(text.getString());
+			int r = (int)(cc.r * 255);
+			int g = (int)(cc.g * 255);
+			int b = (int)(cc.b * 255);
+			return TextColor.fromRgb((b << 16) + (g << 8) + r);
+		}
+
+		TextColor textColor = text.getStyle().getColor();
+		if (textColor == null) return TextColor.fromFormatting(Formatting.LIGHT_PURPLE);
+		return textColor;
 	}
+
 
 	// The following methods are used to determine the player's team color without using the scoreboard.
 	// As this code was written when I was a beginner, the quality is quite dubious.
