@@ -14,6 +14,7 @@ import java.util.stream.StreamSupport;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.mob.AmbientEntity;
 import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.entity.mob.Monster;
@@ -26,6 +27,7 @@ import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -102,6 +104,11 @@ public final class FollowHack extends Hack
 	
 	private final CheckboxSetting filterInvisible = new CheckboxSetting(
 		"Filter invisible", "Won't follow invisible entities.", false);
+	private final CheckboxSetting filterStands = new CheckboxSetting(
+		"Filter armor stands", "Won't follow armor stands.", true);
+	
+	private final CheckboxSetting filterCarts = new CheckboxSetting(
+		"Filter minecarts", "Won't follow minecarts.", true);
 	
 	public FollowHack()
 	{
@@ -125,6 +132,8 @@ public final class FollowHack extends Hack
 		addSetting(filterVillagers);
 		addSetting(filterGolems);
 		addSetting(filterInvisible);
+		addSetting(filterStands);
+		addSetting(filterCarts);
 	}
 	
 	@Override
@@ -141,12 +150,14 @@ public final class FollowHack extends Hack
 	{
 		if(entity == null)
 		{
-			Stream<Entity> stream = StreamSupport
-				.stream(MC.world.getEntities().spliterator(), true)
-				.filter(e -> e instanceof LivingEntity)
-				.filter(e -> !e.removed && ((LivingEntity)e).getHealth() > 0)
-				.filter(e -> e != MC.player)
-				.filter(e -> !(e instanceof FakePlayerEntity));
+			Stream<Entity> stream =
+				StreamSupport.stream(MC.world.getEntities().spliterator(), true)
+					.filter(e -> !e.removed)
+					.filter(e -> e instanceof LivingEntity
+						&& ((LivingEntity)e).getHealth() > 0
+						|| e instanceof AbstractMinecartEntity)
+					.filter(e -> e != MC.player)
+					.filter(e -> !(e instanceof FakePlayerEntity));
 			
 			if(filterPlayers.isChecked())
 				stream = stream.filter(e -> !(e instanceof PlayerEntity));
@@ -201,6 +212,13 @@ public final class FollowHack extends Hack
 			if(filterInvisible.isChecked())
 				stream = stream.filter(e -> !e.isInvisible());
 			
+			if(filterStands.isChecked())
+				stream = stream.filter(e -> !(e instanceof ArmorStandEntity));
+			
+			if(filterCarts.isChecked())
+				stream =
+					stream.filter(e -> !(e instanceof AbstractMinecartEntity));
+			
 			entity = stream
 				.min(Comparator
 					.comparingDouble(e -> MC.player.squaredDistanceTo(e)))
@@ -251,7 +269,8 @@ public final class FollowHack extends Hack
 		}
 		
 		// check if entity died or disappeared
-		if(entity.removed || ((LivingEntity)entity).getHealth() <= 0)
+		if(entity.removed || entity instanceof LivingEntity
+			&& ((LivingEntity)entity).getHealth() <= 0)
 		{
 			entity = StreamSupport
 				.stream(MC.world.getEntities().spliterator(), true)
