@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Formatting;
@@ -313,6 +314,8 @@ public final class PlayerEspHack extends Hack implements UpdateListener,
 			System.out.println(sibling.getString() + ": " + sibling.getStyle());
 		}*/
 		//System.out.println("PRINT COMPLETE");
+
+		//System.out.println(text);
 
 
 		// Handle old color method if available
