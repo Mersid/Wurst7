@@ -53,7 +53,7 @@ public abstract class GameRendererMixin
 		at = {@At(value = "INVOKE",
 			target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
 			opcode = Opcodes.GETFIELD,
-			ordinal = 1)},
+			ordinal = 0)},
 		method = {
 			"renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"})
 	private void onRenderWorld(float partialTicks, long finishTimeNano,
