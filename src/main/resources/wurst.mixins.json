@@ -52,6 +52,7 @@
     "TerrainRenderContextMixin",
     "TextVisitFactoryMixin",
     "TitleScreenMixin",
+    "WorldRendererMixin",
     "WorldMixin"
   ],
   "injectors": {

@@ -1,24 +1,22 @@
 package net.wurstclient.hacks;
 
-import java.util.ArrayList;
-
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.item.*;
-import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.wurstclient.Category;
 import net.wurstclient.SearchTags;
-import net.wurstclient.events.RenderListener;
+import net.wurstclient.events.PartialRenderListener;
 import net.wurstclient.hack.Hack;
 import net.wurstclient.util.RenderUtils;
 import net.wurstclient.util.RotationUtils;
+import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
 
 @SearchTags({"ArrowTrajectories", "ArrowPrediction", "aim assist",
 	"arrow trajectories"})
-public final class TrajectoriesHack extends Hack implements RenderListener
+public final class TrajectoriesHack extends Hack implements PartialRenderListener
 {
 	public TrajectoriesHack()
 	{
@@ -30,23 +28,23 @@ public final class TrajectoriesHack extends Hack implements RenderListener
 	@Override
 	public void onEnable()
 	{
-		EVENTS.add(RenderListener.class, this);
+		EVENTS.add(PartialRenderListener.class, this);
 	}
 	
 	@Override
 	public void onDisable()
 	{
-		EVENTS.remove(RenderListener.class, this);
+		EVENTS.remove(PartialRenderListener.class, this);
 	}
 	
 	@Override
-	public void onRender(float partialTicks)
+	public void onPartialRender(float partialTicks)
 	{
 		GL11.glPushMatrix();
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glDisable(GL11.GL_DEPTH_TEST);
+		//GL11.glDisable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthMask(false);
 		GL11.glEnable(GL11.GL_LINE_SMOOTH);
 		GL11.glLineWidth(2);
@@ -68,7 +66,7 @@ public final class TrajectoriesHack extends Hack implements RenderListener
 		GL11.glColor4f(1, 1, 1, 1);
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
-		GL11.glEnable(GL11.GL_DEPTH_TEST);
+		//GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glDepthMask(true);
 		GL11.glDisable(GL11.GL_LINE_SMOOTH);
 		GL11.glPopMatrix();
@@ -197,8 +195,8 @@ public final class TrajectoriesHack extends Hack implements RenderListener
 			RaycastContext context = new RaycastContext(eyesPos, arrowPos,
 				RaycastContext.ShapeType.COLLIDER,
 				RaycastContext.FluidHandling.NONE, MC.player);
-			if(MC.world.raycast(context).getType() != HitResult.Type.MISS)
-				break;
+			//if(MC.world.raycast(context).getType() != HitResult.Type.MISS)
+			//	break;
 		}
 		
 		return path;

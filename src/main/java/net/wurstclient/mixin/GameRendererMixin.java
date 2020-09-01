@@ -50,10 +50,10 @@ public abstract class GameRendererMixin
 	}
 	
 	@Inject(
-		at = {@At(value = "FIELD",
-			target = "Lnet/minecraft/client/render/GameRenderer;renderHand:Z",
+		at = {@At(value = "INVOKE",
+			target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
 			opcode = Opcodes.GETFIELD,
-			ordinal = 0)},
+			ordinal = 1)},
 		method = {
 			"renderWorld(FJLnet/minecraft/client/util/math/MatrixStack;)V"})
 	private void onRenderWorld(float partialTicks, long finishTimeNano,
@@ -61,6 +61,7 @@ public abstract class GameRendererMixin
 	{
 		RenderEvent event = new RenderEvent(partialTicks);
 		WurstClient.INSTANCE.getEventManager().fire(event);
+
 	}
 	
 	@Redirect(
