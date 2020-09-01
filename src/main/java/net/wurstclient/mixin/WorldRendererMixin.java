@@ -19,10 +19,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class WorldRendererMixin {
 
 	@Inject(at = @At(
-				value = "INVOKE",
-				target = "Lnet/minecraft/util/profiler/Profiler;swap(Ljava/lang/String;)V",
+				value = "FIELD",
+				target = "Lnet/minecraft/client/render/WorldRenderer;transparencyShader:Lnet/minecraft/client/gl/ShaderEffect;",
 				opcode = Opcodes.GETFIELD,
-				ordinal = 10),
+				ordinal = 0),
 			method = "render(Lnet/minecraft/client/util/math/MatrixStack;FJZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lnet/minecraft/util/math/Matrix4f;)V",
 			cancellable = true
 	)
@@ -30,9 +30,10 @@ public class WorldRendererMixin {
 	                     Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci)
 	{
 		RenderSystem.enableDepthTest();
+		RenderSystem.disableBlend();
 		PartialRenderListener.PartialRenderEvent partialRenderEvent = new PartialRenderListener.PartialRenderEvent(tickDelta);
 		WurstClient.INSTANCE.getEventManager().fire(partialRenderEvent);
-		//ci.cancel();
+		RenderSystem.enableBlend();
 		RenderSystem.disableDepthTest();
 	}
 }
