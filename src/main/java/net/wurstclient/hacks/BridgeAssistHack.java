@@ -1,5 +1,6 @@
 package net.wurstclient.hacks;
 
+import net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.util.math.Box;
@@ -7,8 +8,12 @@ import net.minecraft.util.shape.VoxelSet;
 import net.minecraft.util.shape.VoxelShape;
 import net.wurstclient.events.UpdateListener;
 import net.wurstclient.hack.Hack;
+import net.wurstclient.mixin.BoundKeyAccessorMixin;
 import net.wurstclient.settings.SliderSetting;
 import org.lwjgl.glfw.GLFW;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.lang.reflect.Field;
 import java.util.stream.Stream;
@@ -74,16 +79,6 @@ public class BridgeAssistHack extends Hack implements UpdateListener {
 	 */
 	private boolean isSneakActuallyPressed()
 	{
-		try {
-			// Probably more effective to use Mixins to Shadow a field...
-			Field boundKeyField = KeyBinding.class.getDeclaredField("boundKey");
-			boundKeyField.setAccessible(true);
-
-			return InputUtil.isKeyPressed(MC.getWindow().getHandle(), ((InputUtil.Key)boundKeyField.get(MC.options.keySneak)).getCode());
-		}
-		catch (NoSuchFieldException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		return false;
+		return InputUtil.isKeyPressed(MC.getWindow().getHandle(), ((BoundKeyAccessorMixin)MC.options.keySneak).get().getCode());
 	}
 }
