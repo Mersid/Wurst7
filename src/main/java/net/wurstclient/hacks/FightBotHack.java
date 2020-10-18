@@ -21,10 +21,10 @@ import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.entity.mob.Monster;
 import net.minecraft.entity.mob.WaterCreatureEntity;
 import net.minecraft.entity.mob.ZombifiedPiglinEntity;
-import net.minecraft.entity.passive.AbstractTraderEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.GolemEntity;
 import net.minecraft.entity.passive.HorseBaseEntity;
+import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -106,11 +106,13 @@ public final class FightBotHack extends Hack
 	
 	private final CheckboxSetting filterInvisible = new CheckboxSetting(
 		"Filter invisible", "Won't attack invisible entities.", false);
+	private final CheckboxSetting filterNamed = new CheckboxSetting(
+		"Filter named", "Won't attack name-tagged entities.", false);
 	
 	private final CheckboxSetting filterStands = new CheckboxSetting(
 		"Filter armor stands", "Won't attack armor stands.", false);
 	private final CheckboxSetting filterCrystals = new CheckboxSetting(
-		"Filter end crytsals", "Won't attack end crystals.", false);
+		"Filter end crystals", "Won't attack end crystals.", false);
 	
 	private EntityPathFinder pathFinder;
 	private PathProcessor processor;
@@ -139,6 +141,7 @@ public final class FightBotHack extends Hack
 		addSetting(filterTraders);
 		addSetting(filterGolems);
 		addSetting(filterInvisible);
+		addSetting(filterNamed);
 		addSetting(filterStands);
 		addSetting(filterCrystals);
 	}
@@ -202,7 +205,7 @@ public final class FightBotHack extends Hack
 				
 				Box box = e.getBoundingBox();
 				box = box.union(box.offset(0, -filterFlying.getValue(), 0));
-				return MC.world.doesNotCollide(box);
+				return MC.world.isSpaceEmpty(box);
 			});
 		
 		if(filterMonsters.isChecked())
@@ -231,13 +234,16 @@ public final class FightBotHack extends Hack
 					&& ((HorseBaseEntity)e).isTame()));
 		
 		if(filterTraders.isChecked())
-			stream = stream.filter(e -> !(e instanceof AbstractTraderEntity));
+			stream = stream.filter(e -> !(e instanceof MerchantEntity));
 		
 		if(filterGolems.isChecked())
 			stream = stream.filter(e -> !(e instanceof GolemEntity));
 		
 		if(filterInvisible.isChecked())
 			stream = stream.filter(e -> !e.isInvisible());
+		
+		if(filterNamed.isChecked())
+			stream = stream.filter(e -> !e.hasCustomName());
 		
 		if(filterStands.isChecked())
 			stream = stream.filter(e -> !(e instanceof ArmorStandEntity));
